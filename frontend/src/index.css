@@ -1,9 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    color: #4A4A4A;
+    background-color: #fdfbf9;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: #4A4A4A;
+    letter-spacing: -0.015em;
   }
 }

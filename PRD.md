@@ -36,6 +36,7 @@ Sistem manajemen materi menerapkan alur kerja **CRUED (Create, Read, Update, Exp
 ### 4.3. Pencarian & Filter (Discovery)
 *   Pencarian berbasis teks menggunakan kapabilitas **Full-Text Search (FTS)** PostgreSQL untuk toleransi ketikan dan akurasi tinggi.
 *   Filter berdasarkan: Kategori File, Mata Pelajaran, Jenjang, Tanggal Upload, dan Paling Populer.
+*   **Menu Navigasi Per-Mapel:** Terdapat menu horizontal sekunder di bawah *header* utama untuk memfilter materi secara cepat berdasarkan mata pelajaran spesifik Kemenag (PAI, Akidah Akhlak, SKI, Al Quran Hadits, B. Arab, GKMI, GKRA).
 
 ### 4.4. Dashboard & Profil
 *   **Feed Beranda:** Menampilkan resource terbaru dan *trending*. Menggunakan **Pagination / Infinite Scroll** untuk menjaga performa web saat memuat ribuan data.
@@ -67,22 +68,30 @@ Sistem manajemen materi menerapkan alur kerja **CRUED (Create, Read, Update, Exp
 
 ---
 
-## 6. Pedoman UI/UX (Design System)
+## 6. Pedoman UI/UX (Design System V3 - Meta/Apple Style)
 
 ### 6.1. Gaya Desain (Design Style)
-*   **Vibe:** Clean, Profesional, Modern, *Airy* (banyak *white space*).
-*   **Border Radius:** Maksimal **`rounded-2xl`** (16px) untuk semua Card, Modal, Button, dan Input.
-*   **Shadow:** *Soft shadows* (`shadow-sm`, `shadow-md`) untuk memberikan kesan *floating* dan modern.
+*   **Vibe:** Minimalis & Clean seperti Meta/Apple, Professional, Modern.
+*   **Space & Layout:** White space yang generous (padding 80-120px), maximum width 1200px.
+*   **Typography:** Inter atau Poppins. Headline Bold 700 (48-64px), Body Regular 16px.
+*   **Border Radius:** 8-12px untuk buttons & cards.
+*   **Shadow:** Subtle box-shadow (0 2px 8px rgba(0,0,0,0.08)).
 *   **Warna:**
-    *   *Primary:* Biru Profesional / Indigo (misal: `blue-600`).
-    *   *Background:* `gray-50` atau `slate-50` (bukan putih polos agar mata tidak cepat lelah).
-    *   *Surface (Card):* `white` dengan `border border-gray-100`.
+    *   *Primary:* Professional Blue (`#1E88E5`).
+    *   *Accent:* Gold (`#FFD700`).
+    *   *Background:* Light Gray (`#F5F7FA`) dan White (`#FFFFFF`).
+    *   *Text:* Almost Black (`#1A1A1A`) dan Medium Gray (`#666666`).
 
-### 6.2. Arsitektur Komponen (Reusable Components)
-Semua komponen harus di-*pecah* menjadi *reusable components* di folder `src/components/`.
-*   **Layout:** `<MainLayout />`, `<Sidebar />`, `<Topbar />`
-*   **UI Primitives:** `<Button />`, `<Input />`, `<Card />`, `<Badge />`, `<Avatar />`, `<Modal />`
-*   **Feature Components:** `<ResourceCard />`, `<UploadModal />`, `<CommentSection />`, `<LikeButton />`, `<FilterBar />`
+### 6.2. Struktur Halaman (8 Sections)
+Sesuai rancangan V3, halaman beranda terdiri dari 8 seksi:
+1. Navigation Bar (Sticky, Putih)
+2. Hero Section (Gradient biru lembut, overlay background gedung, layout 2 kolom)
+3. Kategori Materi (Filter horizontal, Grid cards)
+4. Filter & Content (Sticky filter, Masonry/Grid 3 columns cards)
+5. Features Section (3 kolom icon+text)
+6. Testimonial Section (Slider/Carousel)
+7. CTA Section (Primary Blue background)
+8. Footer (Dark background, 4 columns)
 
 ---
 

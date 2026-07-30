@@ -1,85 +1,164 @@
-# 🗺️ UI/UX Flow & Wireframe Plan
-## Nama Proyek: PPG ShareHub (Ruang Bagi PPG)
-**Versi:** 1.0.0 | **Tanggal:** 3 Juli 2026 | **Status:** Draft
+# 🗺️ UI/UX Flow & Wireframe Plan (V3 - Meta/Apple Style)
+
+**Color Palette:**
+- Primary: #1E88E5 (Professional Blue)
+- Primary Dark: #1565C0
+- Secondary: #F5F7FA (Light Gray Background)
+- Accent: #FFD700 (Gold untuk highlights)
+- Text Primary: #1A1A1A (Almost Black)
+- Text Secondary: #666666 (Medium Gray)
+- White: #FFFFFF
+- Success: #43A047
+
+**Typography:**
+- Font Family: Inter atau Poppins (Sans-serif modern)
+- Headline: Bold 700, ukuran 48-64px
+- Subheadline: Semibold 600, ukuran 24-32px
+- Body: Regular 400, ukuran 16px
+- Small: Regular 400, ukuran 14px
+
+**Design Principles:**
+- Minimalis & Clean seperti Meta/Apple
+- White space yang generous (padding 80-120px per section)
+- Maximum content width: 1200px
+- Border radius: 8-12px untuk buttons & cards
+- Shadow: Subtle box-shadow (0 2px 8px rgba(0,0,0,0.08))
+- Gradient: Subtle blue gradient untuk hero background
 
 ---
 
-## 1. Peta Situs (Sitemap)
-Struktur navigasi hierarki halaman untuk PPG ShareHub:
+## STRUKTUR HALAMAN (HOME)
 
-```text
-[ Beranda (Feed Utama) ]
- ├── [ Cari & Filter ]
- ├── [ Detail Materi & Komentar ]
- │
- ├── [ Login / Daftar (Input NIM) ]
- │
- ├── [ Profil Pengguna ] (Butuh Auth)
- │    ├── [ Materi Saya ]
- │    ├── [ Tersimpan (Bookmark) ]
- │    └── [ Pengaturan Profil ]
- │
- └── [ Dasbor Admin ] (Butuh Akses Admin)
-      ├── [ Kelola Materi (Takedown) ]
-      └── [ Kelola Pengguna ]
-```
+**1. NAVIGATION BAR (Sticky Top):**
+- Logo: "ShareHub" di kiri (font bold, biru primary)
+- Menu Center (maksimal 5 item):
+  * Beranda
+  * Mata Pelajaran (dropdown)
+  * Tingkatan (MI/MTs/MA)
+  * Tentang
+- Right Side:
+  * Search icon (magnifying glass)
+  * Button "Masuk" (text link)
+  * Button "Daftar" (primary button, biru, rounded)
+- Height: 72px
+- Background: Putih dengan subtle shadow saat scroll
+
+**2. HERO SECTION (Full Width):**
+- Background: Gradient biru lembut (#667eea ke #764ba2) dengan opacity 90%
+- Overlay: Background image gedung modern dengan blur effect
+- Layout: Two columns (60% text, 40% visual)
+- Content Kiri:
+  * Badge: "🎓 Platform Alumni PPG UIN Jakarta" (small text, gold)
+  * Headline: "Tingkatkan Keterampilan. Majukan Karir Anda." (white, bold 64px)
+  * Subheadline: "Akses ribuan perangkat pembelajaran yang dibagikan oleh guru profesional. Mulai jelajahi sekarang." (white, 18px, opacity 90%)
+  * Search Bar: Large rounded input (height 56px, radius 12px)
+    - Placeholder: "Cari materi pembelajaran..."
+    - Button search di kanan (biru, icon only)
+  * Stats Row (3 kolom): 
+    - "1000+ Materi" 
+    - "500+ Guru"
+    - "50+ Sekolah"
+- Content Kanan:
+  * Ilustrasi 3 guru profesional (1 pria berpeci, 2 wanita berhijab)
+  * Pose: Professional, tersenyum, memegang buku
+  * Style: Modern illustration atau photo cutout dengan shadow
+- Padding: 120px vertical
+- Height: 90vh minimum
+
+**3. KATEGORI MATERI SECTION:**
+- Background: Putih
+- Padding: 100px vertical
+- Container: Centered, max-width 1200px
+- Section Header:
+  * Headline: "Jelajahi Materi Terbaik" (centered, 40px, bold)
+  * Subtext: "Pilih kategori mata pelajaran yang ingin Anda pelajari" (centered, gray)
+- Filter Tabs (Horizontal Scroll):
+  * "Semua Mapel" (active, biru)
+  * "PAI", "Akidah Akhlak", "SKI", "Al Quran Hadits", "B. Arab", "Lainnya"
+- Grid Layout: 3 columns desktop, 2 tablet, 1 mobile
+- Category Cards:
+  * Background: Putih dengan border 1px #E0E0E0
+  * Padding: 32px
+  * Border radius: 12px
+  * Icon di atas (ukuran 48px, warna biru)
+  * Judul kategori (bold, 20px)
+  * Jumlah materi (small, gray, contoh: "124 Materi")
+  * Hover effect: Lift up dengan shadow
+
+**4. FILTER & CONTENT SECTION:**
+- Background: #F5F7FA (Light Gray)
+- Padding: 100px vertical
+- Filter Bar (Sticky):
+  * Dropdown: "Semua Tingkatan" (MI, MTs, MA)
+  * Dropdown: "Semua Tipe" (Dokumen, Video, Kuis)
+  * Sort: "Terbaru" / "Terpopuler"
+  * Search input kecil di kanan
+- Content Grid:
+  * Layout: Masonry atau Grid 3 columns
+  * Material Cards:
+    - Thumbnail image di atas (aspect ratio 16:9)
+    - Badge tipe (Video/Dokumen/Kuis) di pojok kanan atas thumbnail
+    - Judul materi (bold, 18px, 2 lines max)
+    - Info: Nama guru + sekolah (small, gray)
+    - Meta: Tanggal upload, jumlah download
+    - Rating stars (jika ada)
+    - Button "Unduh" atau "Lihat" (outline biru)
+
+**5. FEATURES SECTION:**
+- Background: Putih
+- Padding: 100px vertical
+- Layout: 3 kolom features
+- Feature Cards:
+  * Icon besar (64px, biru dengan background circle)
+  * Judul (bold, 24px)
+  * Deskripsi (gray, 16px, 3-4 kalimat)
+
+**6. TESTIMONIAL SECTION:**
+- Background: Gradient biru lembut
+- Padding: 100px vertical
+- Headline: "Apa Kata Mereka?" (centered, white)
+- Testimonial Cards (Slider/Carousel):
+  * Background: Putih, Padding: 40px, Border radius: 16px
+
+**7. CTA SECTION:**
+- Background: Primary Blue (#1E88E5)
+- Padding: 100px vertical
+- Layout: Centered
+- Headline: "Siap Berbagi Ilmu?" (white, bold, 48px)
+- Buttons Row: "Daftar Sekarang" & "Pelajari Lebih Lanjut"
+
+**8. FOOTER:**
+- Background: #1A1A1A (Dark)
+- Padding: 80px vertical
+- Layout: 4 columns
 
 ---
 
-## 2. Alur Pengguna (User Journeys)
+## INTERAKSI & ANIMASI
+- Smooth scroll behavior
+- Hover effects pada semua buttons (scale 1.02, transition 0.3s)
+- Fade-in animation saat scroll untuk setiap section
+- Loading skeleton untuk cards
+- Dropdown menu dengan slide animation
+- Search bar expand on focus
 
-### 2.1. Alur Tamu (Guest Flow)
-1. **Mendarat:** Pengguna anonim membuka URL dan mendarat di **Beranda (Feed)**.
-2. **Eksplorasi:** Tamu menggunakan *search bar* dan laci *filter* untuk mencari referensi dokumen (misal: mencari "RPP Fisika SMA").
-3. **Melihat Konten (Akses Publik):** Karena materi bersifat umum/publik, Tamu bebas mengklik kartu materi (*Card*) dan diarahkan ke **Halaman Detail Materi**.
-4. **Hambatan Akses (Gate):** 
-   - Tamu DAPAT melihat *preview/embed* dokumen dan membaca komentar orang lain secara bebas.
-   - Jika Tamu mencoba mengklik tombol **Like**, menulis **Komentar**, atau menekan tombol **"Bagikan Materi" (Upload)**, sebuah Modal interupsi (pop-up) akan muncul: *"Hanya Alumni PPG terdaftar yang dapat membagikan materi dan berinteraksi. Silakan Login!"*.
+## RESPONSIVE DESIGN
+- Mobile First Approach
+- Breakpoints:
+  * Mobile: < 640px (1 column)
+  * Tablet: 640-1024px (2 columns)
+  * Desktop: > 1024px (3-4 columns)
+- Hamburger menu untuk mobile navigation
+- Touch-friendly buttons (min height 44px)
 
-### 2.2. Alur Alumni (User Flow) - Berbagi Materi
-1. **Autentikasi & Gateway:** Alumni masuk menggunakan Google (OAuth) atau Email. Jika baru pertama kali *login*, mereka akan diarahkan secara paksa ke halaman **Onboarding Gateway** untuk memasukkan NIM. Jika NIM cocok dengan database *whitelist*, status berubah menjadi `alumni`. Jika tidak, mereka akan tetap menjadi `guest`.
-2. **Aksi Berbagi:** Setelah validasi sukses, Alumni menekan *Floating Action Button (FAB)* bertanda (+) di sudut kanan bawah, atau menekan tombol **"Bagikan Materi"** di Header.
-3. **Modal Form CRUED (Create):** Muncul layar sembulan (Modal).
-   - Alumni menempelkan tautan sumber (*Paste URL* G-Drive / YouTube / Canva).
-   - Alumni melengkapi metadata: Judul, Deskripsi, Mata Pelajaran (*Dropdown*), Jenjang (*Dropdown*).
-4. **Submit:** Data divalidasi dan dikirim ke server.
-5. **Umpan Balik (Feedback):** Muncul pesan *Toast/Snackbar* sukses ("Materi berhasil dibagikan!"). Materi baru langsung memicu rendering ulang dan muncul di posisi paling atas pada Feed Beranda.
+## AKSESIBILITAS & PERFORMANCE
+- WCAG 2.1 AA compliant, Color contrast ratio minimal 4.5:1
+- Keyboard navigation support, Focus states yang jelas
+- Lazy loading images, Optimized images (WebP format), Minified CSS/JS
+- Fast loading < 3 detik
 
-### 2.3. Alur Alumni (User Flow) - Interaksi Sosial
-1. **Menemukan:** Alumni berada di Halaman Detail Materi milik orang lain.
-2. **Beri Apresiasi:** Alumni menekan ikon 'Hati/Jempol' (Like). Ikon menggunakan transisi *Framer Motion* yang halus untuk berubah warna menjadi terisi. Jumlah hitungan *like* bertambah +1.
-3. **Diskusi:** Alumni menggulir ke bawah, mengetik tanggapan di kotak input komentar, lalu menekan ikon "Kirim". Komentar muncul secara instan di atas kotak input tersebut tanpa perlu me-*reload* halaman (*Optimistic UI Update*).
-
----
-
-## 3. Rencana Tata Letak Layar (Screen Layout / Wireframe Logic)
-
-### 3.1. Halaman Beranda (Home / Feed)
-*   **Header (Topbar):** Logo (Kiri), *Search Bar* (Tengah), Tombol 'Bagikan' & Ikon Avatar (Kanan). Pada Mobile, Search Bar pindah ke bawah logo.
-*   **Area Filter (Bawah Header):** Sekumpulan *Chips* berbentuk elips (Pills) yang bisa digeser horizontal (Swipeable pada Mobile). Berisi filter cepat (SD, SMP, SMA, SMK).
-*   **Main Content (Grid):** Susunan tata letak *masonry* atau baris kartu materi (`<ResourceCard />`). 
-    *   **Isi Kartu:** Judul, Lencana (Badge) Jenjang, Nama Pembuat, Ikon Jenis Dokumen, serta penghitung Likes dan Komentar.
-
-### 3.2. Halaman Detail Materi (Resource Detail)
-*   **Navigasi:** Tombol melayang kembali ke Beranda (`< Back`).
-*   **Bagian Atas (Metadata):** Judul tebal, Avatar pengunggah (Bisa diklik menuju profil), Tanggal unggah, Lencana Tag.
-*   **Bagian Tengah (Preview Area):** Area dominan berisi kontainer *Iframe/Embed Viewer* responsif. Jika tautan eksternal dibatasi (private) atau tidak diizinkan di-embed, area ini memunculkan **Fallback UI** (Pesan Error ramah + Tombol "Buka Dokumen di Tab Baru").
-*   **Bagian Kanan/Melayang (Panel Aksi):** Kumpulan tombol vertikal atau horizontal di bawah *preview* (Tombol Like, Tombol Bookmark, Tombol Kunjungi Tautan Asli).
-*   **Bagian Bawah:** Kolom komentar, tersusun secara hierarki linier.
-
-### 3.3. Halaman Profil (My Profile)
-*   **Kartu Profil Atas:** Foto Profil bundar, Nama, Asal Universitas, Angkatan PPG. Terdapat tombol "Edit Profil".
-*   **Navigasi Tab:** 
-    1. Tab **"Materi Saya"** (Menampilkan yang pernah diunggah).
-    2. Tab **"Tersimpan"** (Materi orang lain yang di-*bookmark*).
-*   **Manajemen (Update & Delete):** Pada Tab "Materi Saya", setiap kartu materi milik pengguna menampilkan Ikon Pensil (Ubah) dan Ikon Tempat Sampah merah (Hapus/Takedown).
-
----
-
-## 4. Pedoman Pengalaman Antarmuka (Micro-Interactions)
-1. **Indikator Pemuatan (Skeleton UI):** 
-   - Selama aplikasi memanggil data dari Supabase, komponen akan menampilkan *Skeleton UI* (kotak abu-abu berkedip halus) alih-alih layar kosong putih (*blank screen*).
-2. **Animasi Transisi Halaman:** 
-   - Navigasi halaman antar-rute akan memudar perlahan (*fade-in* / *fade-out* singkat) untuk memberikan kesan modern ala aplikasi *Native*.
-3. **Desain Ramah Sentuhan (Touch-Friendly):**
-   - Pada antarmuka Mobile, semua elemen *call-to-action* dan interaksi (tombol, input, ikon Like) memiliki area sentuh minimal `44x44 pixel` agar jempol pengguna tidak salah klik (sesuai standar HIG).
+## INSPIRASI DESIGN & CATATAN
+- Meta.com, Apple.com, Notion.so, Linear.app
+- Hindari clutter dan informasi berlebihan
+- Fokus pada 1 primary action per section
+- Tone: Professional namun approachable, modern, trustworthy
