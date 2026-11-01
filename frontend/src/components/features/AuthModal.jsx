@@ -143,7 +143,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">NIM (Terdaftar)</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">NIM / NPK</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <CreditCard size={16} className="text-slate-400" />
@@ -154,7 +154,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                         value={formData.nim}
                         onChange={handleChange}
                         required
-                        placeholder="Contoh: 1122001"
+                        placeholder="Contoh: 11230120000012"
                         className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-colors text-sm"
                       />
                     </div>
