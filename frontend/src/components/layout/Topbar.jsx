@@ -22,7 +22,7 @@ export const Topbar = ({ onUploadClick }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img src="/logo-uin.png" alt="UIN Logo" className="w-9 h-9 object-contain group-hover:scale-105 transition-transform" />
-            <span className="font-bold text-2xl text-primary-600 tracking-tight">PPG ShareHub</span>
+            <span className="font-bold text-2xl text-primary-600 tracking-tight">Belajar Guru</span>
           </Link>
 
           {/* Centered Navigation Menu */}

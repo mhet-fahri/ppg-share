@@ -17,7 +17,7 @@ export const Footer = () => {
                 <GraduationCap size={24} />
               </div>
               <div>
-                <span className="text-xl font-bold text-white leading-none">PPG ShareHub</span>
+                <span className="text-xl font-bold text-white leading-none">Belajar Guru</span>
                 <p className="text-xs text-primary-400 font-semibold uppercase tracking-widest leading-none mt-1">UIN Jakarta</p>
               </div>
             </Link>
@@ -67,7 +67,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {currentYear} PPG ShareHub UIN Jakarta. Hak Cipta Dilindungi.</p>
+          <p>© {currentYear} Belajar Guru - PPG UIN Jakarta. Hak Cipta Dilindungi.</p>
           <p>
             Dibuat dengan <span className="text-red-500 mx-1">❤</span> untuk Pendidikan Indonesia
           </p>
