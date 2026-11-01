@@ -31,7 +31,7 @@ export const MainLayout = ({ children }) => {
             <div>
               <div className="flex items-center gap-2 mb-6">
                 <img src="/logo-uin.png" alt="UIN Logo" className="w-8 h-8 object-contain" />
-                <h3 className="text-2xl font-bold text-primary-500 tracking-tight">ShareHub</h3>
+                <h3 className="text-2xl font-bold text-primary-500 tracking-tight">Belajar Guru</h3>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
                 Platform berbagi materi dan perangkat pembelajaran untuk komunitas alumni Pendidikan Profesi Guru (PPG) UIN Jakarta.
