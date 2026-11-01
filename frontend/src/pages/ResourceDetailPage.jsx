@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockResources, mockComments } from '../lib/mockData';
+import { supabase } from '../lib/supabaseClient';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button } from '../components/ui/Button';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft, Heart, Bookmark, ExternalLink, MessageCircle,
-  Send, AlertTriangle, FileText, Video, HelpCircle, User, Calendar
+  Send, AlertTriangle, FileText, Video, HelpCircle, User, Calendar, Loader2
 } from 'lucide-react';
 
 const getEmbedUrl = (url, type) => {
+  if (!url) return null;
   if (type === 'video') {
     const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     if (match) return `https://www.youtube.com/embed/${match[1]}`;
   }
   if (url.includes('docs.google.com') || url.includes('drive.google.com')) {
-    // Convert Google Drive/Docs link to embed
     return url.replace('/view', '/preview').replace('/edit', '/preview');
   }
   if (url.startsWith('/') && (url.endsWith('.pdf') || url.endsWith('.html'))) {
@@ -31,21 +30,164 @@ const ResourceIcon = ({ type, size = 20 }) => {
 };
 
 const formatDate = (dateStr) => {
+  if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
 export const ResourceDetailPage = () => {
   const { id } = useParams();
-  const { isLoggedIn, user, login } = useAuthStore();
+  const { isLoggedIn, user } = useAuthStore();
+  const [resource, setResource] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [liked, setLiked] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
-  const [embedError, setEmbedError] = useState(false);
-  const [comment, setComment] = useState('');
-  const [localComments, setLocalComments] = useState(
-    mockComments.filter((c) => c.resource_id === id)
-  );
+  const [likeCount, setLikeCount] = useState(0);
+  const [commentText, setCommentText] = useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  const resource = mockResources.find((r) => r.id === id);
+  // Fetch detail resource, comments, & status like
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setIsLoading(true);
+        // 1. Fetch resource
+        const { data: resData, error: resError } = await supabase
+          .from('resources')
+          .select(`
+            *,
+            users (
+              id,
+              full_name,
+              university,
+              avatar_url,
+              batch_year
+            )
+          `)
+          .eq('id', id)
+          .single();
+
+        if (resError) throw resError;
+        setResource(resData);
+
+        // 2. Fetch comments
+        const { data: comData } = await supabase
+          .from('comments')
+          .select(`
+            *,
+            users (
+              id,
+              full_name,
+              avatar_url
+            )
+          `)
+          .eq('resource_id', id)
+          .order('created_at', { ascending: true });
+
+        setComments(comData || []);
+
+        // 3. Fetch likes count & check if user liked
+        const { data: likesData } = await supabase
+          .from('likes')
+          .select('id, user_id')
+          .eq('resource_id', id);
+
+        const totalLikes = likesData?.length || 0;
+        setLikeCount(totalLikes);
+
+        if (user && likesData) {
+          const userLiked = likesData.some((l) => l.user_id === user.id);
+          setLiked(userLiked);
+        }
+      } catch (err) {
+        console.error('Error fetching resource detail:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [id, user]);
+
+  const handleToggleLike = async () => {
+    if (!isLoggedIn || !user) {
+      alert('Silakan masuk terlebih dahulu untuk menyukai materi ini.');
+      return;
+    }
+
+    try {
+      if (liked) {
+        // Unlike
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('resource_id', id)
+          .eq('user_id', user.id);
+
+        setLiked(false);
+        setLikeCount((prev) => Math.max(0, prev - 1));
+      } else {
+        // Like
+        await supabase
+          .from('likes')
+          .insert([{ resource_id: id, user_id: user.id }]);
+
+        setLiked(true);
+        setLikeCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const handleSendComment = async (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    if (!isLoggedIn || !user) {
+      alert('Silakan masuk terlebih dahulu untuk memberi komentar.');
+      return;
+    }
+
+    try {
+      setIsSubmittingComment(true);
+      const { data, error } = await supabase
+        .from('comments')
+        .insert([
+          {
+            resource_id: id,
+            user_id: user.id,
+            content: commentText.trim(),
+          },
+        ])
+        .select(`
+          *,
+          users (
+            id,
+            full_name,
+            avatar_url
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setComments((prev) => [...prev, data]);
+      setCommentText('');
+    } catch (err) {
+      console.error('Error posting comment:', err);
+      alert('Gagal mengirim komentar.');
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-slate-500">
+        <Loader2 size={36} className="animate-spin text-primary-600 mb-2" />
+        <p>Memuat materi...</p>
+      </div>
+    );
+  }
 
   if (!resource) {
     return (
@@ -58,207 +200,171 @@ export const ResourceDetailPage = () => {
   }
 
   const embedUrl = getEmbedUrl(resource.resource_url, resource.resource_type);
-  const likesTotal = resource.likes_count + (liked ? 1 : 0);
-
-  const handleInteraction = (action) => {
-    if (!isLoggedIn) {
-      alert('Fitur ini hanya untuk Alumni PPG yang telah login.\n\n[Demo: Klik OK untuk simulasi login]');
-      login();
-      return;
-    }
-    action();
-  };
-
-  const handleSendComment = () => {
-    if (!comment.trim()) return;
-    const newComment = {
-      id: `c-${Date.now()}`,
-      resource_id: id,
-      user_name: user?.full_name || 'Alumni',
-      content: comment,
-      created_at: new Date().toISOString(),
-    };
-    setLocalComments((prev) => [newComment, ...prev]);
-    setComment('');
-  };
+  const authorName = resource.users?.full_name || 'Alumni PPG';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-6 max-w-4xl mx-auto"
-    >
-      {/* Back Button */}
-      <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors font-medium w-fit">
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Tombol Kembali */}
+      <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 font-semibold mb-6 transition-colors">
         <ArrowLeft size={18} />
         Kembali ke Beranda
       </Link>
 
-      {/* Metadata Header */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex gap-2 flex-wrap">
-            <span className="px-3 py-1 bg-primary-50 text-primary-700 text-xs font-bold rounded-full">
-              {resource.education_level}
-            </span>
-            <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
+      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+        {/* Header Materi */}
+        <div className="p-6 md:p-8 border-b border-slate-100">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="px-3 py-1 bg-primary-50 text-primary-700 font-bold text-xs rounded-lg uppercase tracking-wide">
               {resource.subject}
             </span>
-          </div>
-          <ResourceIcon type={resource.resource_type} size={24} />
-        </div>
-
-        <h1 className="text-2xl font-extrabold text-slate-900 leading-snug">{resource.title}</h1>
-        <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
-
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold">
-              {resource.author_name.charAt(0)}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">{resource.author_name}</p>
-              <p className="text-xs text-slate-400 flex items-center gap-1">
-                <Calendar size={11} /> {formatDate(resource.created_at)}
-              </p>
-            </div>
+            <span className="px-3 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg uppercase tracking-wide">
+              {resource.education_level}
+            </span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleInteraction(() => setLiked(!liked))}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
-                liked
-                  ? 'bg-red-50 border-red-300 text-red-600'
-                  : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-500'
-              }`}
-            >
-              <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
-              <span>{likesTotal}</span>
-            </button>
-            <button
-              onClick={() => handleInteraction(() => setBookmarked(!bookmarked))}
-              className={`p-2 rounded-full border text-sm transition-all ${
-                bookmarked
-                  ? 'bg-primary-50 border-primary-300 text-primary-600'
-                  : 'bg-white border-slate-200 text-slate-600 hover:border-primary-300'
-              }`}
-            >
-              <Bookmark size={16} fill={bookmarked ? 'currentColor' : 'none'} />
-            </button>
-            <a
-              href={resource.resource_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200 text-sm font-semibold text-slate-600 hover:border-primary-400 hover:text-primary-600 transition-all bg-white"
-            >
-              <ExternalLink size={16} />
-              Buka Asli
-            </a>
-          </div>
-        </div>
-      </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-4 leading-tight">
+            {resource.title}
+          </h1>
 
-      {/* Embed / Preview Area */}
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-          <ResourceIcon type={resource.resource_type} />
-          <span className="font-semibold text-slate-700">Pratinjau Materi</span>
-        </div>
-
-        {!embedError && embedUrl ? (
-          <div className="relative w-full" style={{ paddingBottom: resource.resource_type === 'video' ? '56.25%' : '75%' }}>
-            <iframe
-              src={embedUrl}
-              className="absolute inset-0 w-full h-full"
-              title={resource.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              onError={() => setEmbedError(true)}
-            />
-          </div>
-        ) : (
-          /* Fallback UI */
-          <div className="flex flex-col items-center justify-center py-20 gap-5 bg-slate-50">
-            <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center">
-              <AlertTriangle className="text-amber-500" size={40} />
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-slate-700">Pratinjau tidak dapat dimuat</p>
-              <p className="text-sm text-slate-500 mt-1 max-w-xs">
-                Dokumen mungkin bersifat privat atau tidak mendukung tampilan di dalam web.
-              </p>
-            </div>
-            <a
-              href={resource.resource_url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="primary">
-                <ExternalLink size={16} className="mr-2" />
-                Buka Dokumen di Tab Baru
-              </Button>
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* Comment Section */}
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-6 flex flex-col gap-5">
-        <h2 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-          <MessageCircle size={20} className="text-primary-500" />
-          Diskusi ({localComments.length})
-        </h2>
-
-        {/* Comment Input */}
-        <div
-          onClick={() => { if (!isLoggedIn) { alert('Login terlebih dahulu untuk berkomentar.\n\n[Demo: Klik OK untuk simulasi login]'); login(); } }}
-          className="flex items-start gap-3"
-        >
-          <div className="w-9 h-9 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center">
-            <User size={16} className="text-slate-500" />
-          </div>
-          <div className="flex-1 flex gap-2">
-            <input
-              type="text"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleSendComment(); }}
-              placeholder={isLoggedIn ? 'Tulis komentar atau pertanyaan...' : 'Login untuk berkomentar...'}
-              disabled={!isLoggedIn}
-              className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-all"
-            />
-            <button
-              onClick={() => handleInteraction(handleSendComment)}
-              disabled={!isLoggedIn || !comment.trim()}
-              className="p-2.5 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Send size={18} />
-            </button>
-          </div>
-        </div>
-
-        {/* Comment List */}
-        <div className="flex flex-col gap-4">
-          {localComments.length > 0 ? (
-            localComments.map((c) => (
-              <div key={c.id} className="flex gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary-100 flex-shrink-0 flex items-center justify-center text-primary-700 font-bold text-sm">
-                  {c.user_name.charAt(0)}
-                </div>
-                <div className="flex-1 bg-slate-50 rounded-2xl px-4 py-3">
-                  <p className="text-sm font-semibold text-slate-800">{c.user_name}</p>
-                  <p className="text-sm text-slate-600 mt-0.5">{c.content}</p>
-                  <p className="text-xs text-slate-400 mt-1.5">{formatDate(c.created_at)}</p>
-                </div>
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100 text-sm text-slate-500">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700">
+                {authorName.charAt(0).toUpperCase()}
               </div>
-            ))
+              <div>
+                <p className="font-bold text-slate-900">{authorName}</p>
+                <p className="text-xs text-slate-400">{resource.users?.university || 'PPG UIN Jakarta'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <Calendar size={14} />
+                {formatDate(resource.created_at)}
+              </div>
+              <button
+                onClick={handleToggleLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  liked
+                    ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200'
+                }`}
+              >
+                <Heart size={16} className={liked ? 'fill-rose-600 text-rose-600' : ''} />
+                {likeCount} Suka
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Preview / Embed Box */}
+        <div className="p-6 md:p-8 bg-slate-50 border-b border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <ResourceIcon type={resource.resource_type} />
+            Pratinjau Materi
+          </h3>
+
+          {embedUrl ? (
+            <div className="w-full aspect-video bg-black/5 rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+              <iframe
+                src={embedUrl}
+                title={resource.title}
+                className="w-full h-full border-0"
+                allowFullScreen
+              />
+            </div>
           ) : (
-            <p className="text-center text-slate-400 text-sm py-6">Belum ada komentar. Jadilah yang pertama!</p>
+            <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200 flex flex-col items-center">
+              <p className="text-slate-600 mb-4 text-sm">Pratinjau langsung tidak tersedia untuk format tautan ini.</p>
+              <a
+                href={resource.resource_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-transform hover:scale-105"
+              >
+                <ExternalLink size={16} />
+                Buka Materi di Tab Baru
+              </a>
+            </div>
+          )}
+
+          {embedUrl && (
+            <div className="mt-4 flex justify-end">
+              <a
+                href={resource.resource_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:underline"
+              >
+                <ExternalLink size={14} />
+                Buka Tautan Sumber Asli
+              </a>
+            </div>
           )}
         </div>
+
+        {/* Deskripsi */}
+        {resource.description && (
+          <div className="p-6 md:p-8 border-b border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-2">Deskripsi Materi</h3>
+            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+              {resource.description}
+            </p>
+          </div>
+        )}
+
+        {/* Komentar Section */}
+        <div className="p-6 md:p-8">
+          <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <MessageCircle size={18} />
+            Diskusi & Komentar ({comments.length})
+          </h3>
+
+          {/* Form Kirim Komentar */}
+          <form onSubmit={handleSendComment} className="mb-8">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={isLoggedIn ? "Tulis tanggapan atau pertanyaan..." : "Masuk untuk ikut berdiskusi..."}
+                disabled={!isLoggedIn}
+                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white text-sm"
+              />
+              <button
+                type="submit"
+                disabled={!isLoggedIn || isSubmittingComment || !commentText.trim()}
+                className="px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-sm shadow-sm"
+              >
+                {isSubmittingComment ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                Kirim
+              </button>
+            </div>
+          </form>
+
+          {/* Daftar Komentar */}
+          <div className="space-y-4">
+            {comments.length > 0 ? (
+              comments.map((c) => (
+                <div key={c.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs flex-shrink-0">
+                    {(c.users?.full_name || 'A').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-slate-900 text-sm">{c.users?.full_name || 'Alumni PPG'}</span>
+                      <span className="text-xs text-slate-400">{formatDate(c.created_at)}</span>
+                    </div>
+                    <p className="text-slate-600 text-sm">{c.content}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-slate-400 text-sm py-4">Belum ada komentar untuk materi ini.</p>
+            )}
+          </div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
