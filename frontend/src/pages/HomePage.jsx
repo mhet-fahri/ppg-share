@@ -4,13 +4,18 @@ import { Search, Book, Users, Download, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { ResourceCard } from '../components/features/ResourceCard';
+import { InductionModulesSection } from '../components/features/InductionModulesSection';
 
 const CATEGORIES = [
   { id: 'all', label: 'Semua Mapel' },
   { id: 'PAI', label: 'PAI' },
   { id: 'Akidah Akhlak', label: 'Akidah Akhlak' },
-  { id: 'SKI', label: 'SKI' },
+  { id: 'Fikih', label: 'Fikih' },
   { id: 'Al Quran Hadits', label: 'Al Quran Hadits' },
+  { id: 'SKI', label: 'SKI' },
+  { id: 'GKMI', label: 'GKMI' },
+  { id: 'GKRA', label: 'GKRA' },
+  { id: 'SJT', label: 'SJT' },
   { id: 'B. Arab', label: 'B. Arab' },
 ];
 
@@ -149,6 +154,9 @@ export const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* MODUL INDUKSI RESMI SECTION */}
+      <InductionModulesSection />
 
       {/* KATEGORI MATERI SECTION */}
       <section className="py-[100px] bg-white">
